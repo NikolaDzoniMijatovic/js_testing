@@ -1,0 +1,23 @@
+const assert = require('assert');  // ovo ispada kao da je dodavanje biblioteke assert
+
+const Maths = require('../Maths');  // imoprtujemo klasu Maths
+
+describe('Basic maths test', function() {  // set testova koji ce se nalaziti unutar ovog metoda i uzima dva parametra - prvi parametar je opis - drugi parametar je function(){} - ispod pisemo it
+    it('Test if 1 equals 1', function() {
+        assert.equal(1, 1);
+    });
+
+    it('Test if 2 equals 2', function() {
+        assert.equal(2, 2);
+    });
+});
+
+describe('Math test', function() {
+    it('Test if 1 + 1 = 2', function() {
+        assert.equal(Maths.add(1, 1), 2);
+    });
+
+    it('Test if 2 - 1 = 1', function() {
+        assert.equal(Maths.sub(2, 1), 1);
+    });
+});
