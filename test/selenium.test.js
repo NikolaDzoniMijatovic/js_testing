@@ -11,9 +11,10 @@ const webdriver = require("selenium-webdriver");  // ucitavanje web drivera
 const { By, Key, until } = require("selenium-webdriver");
 
 const chai = require("chai");
-const { describe } = require("mocha");
-const { expect } = require("chai");
-const assert = chai.assert;  // koriscenje chai biblioteke umesto mochinog aserta
+//const { describe } = require("mocha");
+//const { expect } = require("chai");
+//const assert = chai.assert;  // koriscenje chai biblioteke umesto mochinog aserta
+const { assert, expect } = require("chai");
 
 
 describe("Selenium tests", function() {
@@ -28,21 +29,23 @@ describe("Selenium tests", function() {
     });
 
     it("Open qa.rs website", async function() {
-        await driver.get("https://qa.rs");
+        await driver.get("http://qa.rs");
 
         await delay(5000);
 
+        //const pageTitle = await driver.getTitle();
         const pageTitle = await driver.getTitle();
 
         expect(pageTitle).to.contain("QA.rs");
 
-        assert.equal(pageTitle, 'Edukacija za qa testere - qa.rs');
+        assert.equal(pageTitle, 'Edukacija za QA testere - QA.rs');
 
-        //assert.notEqual([pageTitle, 'Edukacija za qa testere - qa.rs']);
+        //assert.notEqual(pageTitle, 'Edukacija za qa testere - qa.rs');
     });
 
     it("Open google.com", async function() {
         await driver.get("https://google.com");
+        const pageTitle = await driver.getTitle();
         expect(pageTitle).to.contain("Google");
     });
 
@@ -54,7 +57,7 @@ describe("Selenium tests", function() {
         inputSearch.sendKeys("qa.rs", Key.ENTER);
 
         await driver.wait(until.elementLocated(By.id("search")));
-        await driver.sleep(3000);
+        await driver.sleep(3000);  // ovo koristimo umesto delay funkcije
         expect(await driver.getTitle()).to.contain("qa.rs");
 
         await delay(3000);
