@@ -30,6 +30,10 @@ module.exports = class HomePage {
         return this.#driver.findElement(By.partialLinkText('Logout')).isDisplayed();
     }
 
+    isLoginLinkDisplayed() {
+        return this.#driver.findElement(By.partialLinkText('Login')).isDisplayed();
+    }
+
     clickOnRegisterLink() {
         const registerLink = this.#driver.findElement(By.linkText('Register'));
         registerLink.click();

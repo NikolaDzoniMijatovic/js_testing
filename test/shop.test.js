@@ -9,6 +9,8 @@ const HomePage = require("../pages/home.page");  // ovo je dodato samo od sebe
 const RegisterPage = require("../pages/register.page");
 const LoginPage = require("../pages/login.page");
 const CartPage = require("../pages/cart.page");
+const CheckoutPage = require("../pages/checkout.page");
+const HistoryPage = require("../pages/history.page");
 
 describe.only("shop.QA.rs tests", function() {
     let driver;
@@ -16,6 +18,8 @@ describe.only("shop.QA.rs tests", function() {
     let pageRegister;
     let pageLogin;
     let pageCart;
+    let pageCheckout;
+    let pageHistory;
 
     const packageToAdd = 'starter';
     const packageQuantity = '2';
@@ -26,6 +30,8 @@ describe.only("shop.QA.rs tests", function() {
         pageRegister = new RegisterPage(driver);
         pageLogin = new LoginPage(driver);
         pageCart = new CartPage(driver);
+        pageCheckout = new CheckoutPage(driver);
+        pageHistory = new HistoryPage(driver);
     });
 
     after(async function() {
@@ -94,6 +100,14 @@ describe.only("shop.QA.rs tests", function() {
         await driver.sleep(3000);
     });
 
+    it('Clean up leftover cart items', async function() {
+        await pageCart.goToPage();
+        await pageCart.clickOnCheckoutButton();
+
+        expect(await pageCheckout.getCheckoutSuccessTitle()).to.contain('(Order #)');
+        await pageHomePage.goToPage();
+    });
+
     it('Add Item to cart - starter, 2 items', async function() {
     
         const packageDiv = await pageHomePage.getPackageDiv(packageToAdd);
@@ -126,8 +140,53 @@ describe.only("shop.QA.rs tests", function() {
     it("Verifies items are in cart - Starter, 2 items", async function() {
         const orderRow = await pageCart.getOrderRow(packageToAdd);
 
-        const orderQuantity = await pageCart.getOrderQuantity(orderRow);
+        const itemQuantity = await pageCart.getItemQuantity(orderRow);
 
-        expect(await orderQuantity.getText()).to.eq(packageQuantity);
-    }); 
+        expect(await itemQuantity.getText()).to.eq(packageQuantity);
+    });
+
+    // domaci da li ukupna cena odgovara ukupnoj ceni (total u donjem uglu tabele shop.qa.rs/cart)
+    it("Verifies total item price is correct", async function() {
+        const orderRow = await pageCart.getOrderRow(packageToAdd);
+        const itemQuantity = await pageCart.getItemQuantity(orderRow);
+        const itemPrice = await pageCart.getItemPrice(orderRow);
+        const itemPriceTotal = await pageCart.getItemPriceTotal(orderRow);
+
+        const qntty = Number(await itemQuantity.getText());  // pretvara string u number
+        const price = Number((await itemPrice.getText()).substring(1));  // preskace deo karaktera $300 preskace dolar znak
+        const total = Number((await itemPriceTotal.getText()).substring(1));
+
+        //const price2 = (await itemPrice.getText()).replace(/\D/g, ''); \D sve sto nije broj izbaci ga iz stringa - regex izraz - regularni izraz
+
+        const calculatedItemPriceTotal = qntty * price;
+
+        expect(calculatedItemPriceTotal).to.be.eq(total);
+    });
+
+    it("Performs checkout", async function() {
+        await pageCart.clickOnCheckoutButton();
+
+        expect(await pageCheckout.getCheckoutSuccessTitle()).to.contain('(Order #)');
+    });
+
+    it("Verifies checkout success", async function() {
+        const orderNumber = pageCheckout.getCheckoutOrderNumber();
+
+        await pageCheckout.clickOnGetOrderHistoryLink();
+
+        expect(await pageHistory.getPageHeaderTitle()).to.contain('Order history');
+
+        const historyRow = await pageHistory.getHistoryRow(orderNumber);
+        const historyStatus = await pageHistory.getHistoryStatus(historyRow).getText();
+
+        expect(historyStatus).to.be.eq('Oredered');
+
+        // domaci odradi logaout
+    });
+
+    it("Performs logout", async function() {
+        await pageHistory.clickOnLogoutLink();
+
+        expect(await pageHomePage.isLoginLinkDisplayed()).to.be.true;
+    });
 });

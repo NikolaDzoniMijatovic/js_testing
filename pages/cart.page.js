@@ -26,7 +26,20 @@ module.exports = class CartPage {
         return this.getCartTable().findElement(By.xpath(xpathOrderRow));
     }
 
-    getOrderQuantity(orderRow) {
+    getItemQuantity(orderRow) {
         return orderRow.findElement(By.xpath('td[2]'));
+    }
+
+    getItemPrice(orderRow) {
+        return orderRow.findElement(By.xpath('td[3]'));
+    }
+
+    getItemPriceTotal(orderRow) {
+        return orderRow.findElement(By.xpath('td[4]'));
+    }
+
+    async clickOnCheckoutButton() {
+        const btn = this.#driver.findElement(By.name('checkout'));
+        await btn.click();
     }
 }

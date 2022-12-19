@@ -8,7 +8,7 @@ const expect = chai.expect;
 
 chai.should();
 
-describe.only("Promise test", function() {
+describe("Promise test", function() {
     
     it("Test a resolved promise", async function() {
         const promise = new Promise(function(resolve, reject) {
